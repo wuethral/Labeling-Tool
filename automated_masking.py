@@ -78,179 +78,104 @@ def create_bounding_box(hsv_image, width, height):
 def check_hsv(hsv_pixel):
     return hsv_pixel[0], hsv_pixel[1], hsv_pixel[2]
 
+def automated_masking(pixel_value):
+
+    image_names = os.listdir('images')
+    for image_name in image_names:
+
+        image_path = 'images/' + image_name
+
+        image_0 = cv.imread(image_path)
+        height = image_0.shape[0]
+        width = image_0.shape[1]
+
+        print(image_name)
+        image = cv.imread(image_path)
+        hsv_image = cv.cvtColor(image, cv.COLOR_BGR2HSV)
+        x_min, x_max = create_bounding_box(hsv_image, width, height)
 
 
-#def automated_masking_finish_window():
+        if (x_min - 80) < -60:
+            x_min = 0
+        elif (x_min - 80) < -40:
+            x_min = 100
+        elif (x_min - 40) < -20:
+            x_min = 120
+        elif (x_min - 20) < -10:
+            x_min = 140
+        elif (x_min - 80) < 0:
+            x_min = 150
 
 
+        if (x_max + 80) > width:
+            x_max = width-80
+        print('xxxxx')
+        print(x_min, x_max)
+        print(width, height)
+        print('xxxxx')
+        h_min = 360
+        h_max = 0
+        s_min = 360
+        s_max = 0
+        v_min = 360
+        v_max = 0
 
 
-def automated_masking():
+        for y in range(height):
 
-    masking_finished = False
-    print(masking_finished)
-
-
-    def masking(pixel_value):
-        global masking_finished
-        print(pixel_value)
-        image_names = os.listdir('images')
-        for image_name in image_names:
-
-            image_path = 'images/' + image_name
-
-            image_0 = cv.imread(image_path)
-            height = image_0.shape[0]
-            width = image_0.shape[1]
-
-            print(image_name)
-            image = cv.imread(image_path)
-            hsv_image = cv.cvtColor(image, cv.COLOR_BGR2HSV)
-            x_min, x_max = create_bounding_box(hsv_image, width, height)
-
-            if (x_min - 80) < -60:
-                x_min = 0
-            elif (x_min - 80) < -40:
-                x_min = 100
-            elif (x_min - 40) < -20:
-                x_min = 120
-            elif (x_min - 20) < -10:
-                x_min = 140
-            elif (x_min - 80) < 0:
-                x_min = 150
-
-            if (x_max + 80) > width:
-                x_max = width-80
-            print('xxxxx')
-            print(x_min, x_max)
-            print(width, height)
-            print('xxxxx')
-            h_min = 360
-            h_max = 0
-            s_min = 360
-            s_max = 0
-            v_min = 360
-            v_max = 0
+            for x in range(x_min - 80):
+                h, s, v = check_hsv(hsv_image[y, x])
+                image[y, x] = (0, 0, 0)
+                if h > h_max:
+                    h_max = h
+                if h < h_min:
+                    h_min = h
+                if s > s_max:
+                    s_max = s
+                if s < s_min:
+                    s_min = s
+                if v > v_max:
+                    v_max = v
+                if v < v_min:
+                    v_min = v
 
 
-            for y in range(height):
+            for x in range(x_max + 80, width, 1):
+                h, s, v = check_hsv(hsv_image[y, x])
+                image[y, x] = (0, 0, 0)
+                if h > h_max:
+                    h_max = h
+                if h < h_min:
+                    h_min = h
+                if s > s_max:
+                    s_max = s
+                if s < s_min:
+                    s_min = s
+                if v > v_max:
+                    v_max = v
+                if v < v_min:
+                    v_min = v
 
-                for x in range(x_min - 80):
-                    h, s, v = check_hsv(hsv_image[y, x])
+            for x in range(x_min - 80, x_max + 80, 1):
+
+                if check_pixel_green(hsv_image, x, y, h_min, h_max, s_min, s_max, v_min, v_max):
                     image[y, x] = (0, 0, 0)
-                    if h > h_max:
-                        h_max = h
-                    if h < h_min:
-                        h_min = h
-                    if s > s_max:
-                        s_max = s
-                    if s < s_min:
-                        s_min = s
-                    if v > v_max:
-                        v_max = v
-                    if v < v_min:
-                        v_min = v
-
-
-                for x in range(x_max + 80, width, 1):
-                    h, s, v = check_hsv(hsv_image[y, x])
-                    image[y, x] = (0, 0, 0)
-                    if h > h_max:
-                        h_max = h
-                    if h < h_min:
-                        h_min = h
-                    if s > s_max:
-                        s_max = s
-                    if s < s_min:
-                        s_min = s
-                    if v > v_max:
-                        v_max = v
-                    if v < v_min:
-                        v_min = v
-
-                for x in range(x_min - 80, x_max + 80, 1):
-
-                    if check_pixel_green(hsv_image, x, y, h_min, h_max, s_min, s_max, v_min, v_max):
-                        image[y, x] = (0, 0, 0)
-                    else:
-                        image[y, x] = (pixel_value, pixel_value, pixel_value)
+                else:
+                    image[y, x] = (pixel_value, pixel_value, pixel_value)
 
 
 
-            image_gray = cv.cvtColor(image, cv.COLOR_BGR2GRAY)
-            #kernel = np.ones((5, 5), np.uint8)
+        image = cv.resize(image, (760,428))
+        print(image.size)
+        saving_path = 'bounding_boxes/' + image_name
+        saving_path_2 = 'bounding_boxes_copy/' + image_name
+        cv.imwrite(saving_path, image)
+        cv.imwrite(saving_path_2, image)
 
-
-            # The first parameter is the original image,
-            # kernel is the matrix with which image is
-            # convolved and third parameter is the number
-            # of iterations, which will determine how much
-            # you want to erode/dilate a given image.
-            #img_erosion = cv.erode(image_gray, kernel, iterations=2)
-            #img_dilation = cv.dilate(img_erosion, kernel, iterations=2)
-            image = cv.resize(image, (760,428))
-            print(image.size)
-            saving_path = 'bounding_boxes/' + image_name
-            saving_path_2 = 'bounding_boxes_copy/' + image_name
-            cv.imwrite(saving_path, image)
-            cv.imwrite(saving_path_2, image)
-
-            winname = 'Mask'
-            cv.namedWindow(winname)
-            cv.moveWindow(winname, 0, 0)
-            newsize = (int(width*2), int(height*2))
-            mask_green_black_hsv = cv.resize(image, newsize)
-            cv.imshow(winname, mask_green_black_hsv)
-            cv.waitKey(10)
-
-        cv.destroyWindow(winname)
-        masking_finished = True
-
-
-
-
-    pixel_value = -1
-    def window():
-
-        def ok():
-            pixel_value = int(t1.get())
-            if pixel_value >= 1 and pixel_value <= 255:
-                messagebox.showinfo(title='Pixel Assingment', message='Successful pixel assignment')
-                masking(pixel_value)
-                window.destroy()
-
-            else:
-                messagebox.showerror(title='Pixel Assingment', message='Pixel out of range')
-
-
-
-        window = tk.Tk()
-
-        window.title('Assign pixel value to mask (Label):')
-        window.geometry('400x500')
-
-        l1 = tk.Label(window, text='Choose for 1-255:', font=(14))
-        l1.grid(row=0, column=0, padx=5, pady=5)
-        entry_pixel = tk.StringVar()
-        t1 = tk.Entry(window, textvariable=entry_pixel, font=(14))
-        t1.grid(row=0, column=1)
-        b1 = tk.Button(window, command=ok, text='Ok', font=(14))
-        b1.grid(row=2, column=1)
-
-        window.mainloop()
-
-
-    window()
-    print('hi')
-    print(masking_finished)
-
-    if masking_finished == True:
-        return True
-
-
-
-
-'''
-        hsv_filter_direct(filename_image, hsv_image, height, width, h_green_min, h_green_max, s_green_min, s_green_max,
-                          v_green_min, v_green_max)
-'''
+        winname = 'Mask'
+        cv.namedWindow(winname)
+        cv.moveWindow(winname, 0, 0)
+        newsize = (int(width*2), int(height*2))
+        mask_green_black_hsv = cv.resize(image, newsize)
+        cv.imshow(winname, mask_green_black_hsv)
+        cv.waitKey(10)

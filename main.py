@@ -1,4 +1,4 @@
-from tkinter import *
+import tkinter as tk
 from IPython.display import display, Image
 from PIL import Image, ImageTk
 from create_mask import mask_creation
@@ -13,6 +13,8 @@ from filtering_functions import hsv_filter_direct
 from automated_masking import automated_masking
 import numpy as np
 from sklearn.cluster import DBSCAN
+from tkinter import messagebox
+
 
 canvas = 0
 canvas_2 = 0
@@ -308,10 +310,12 @@ def displaying_current_image():
 
 
 def next_image(root, sub_root, labels_we_want, w, h):
+    print('ni')
     global img_nr
     global label_buttons
     global get_pixel_flag
     global image_list
+    print(image_list)
     get_pixel_flag = False
     img_nr += 1
 
@@ -683,7 +687,7 @@ def dbscan():
 
 def button_control(status, root, standard_button_callback, list_of_labels, w, h, colors):
     count = 1
-    label_title = Label(root, text='Labels:')
+    label_title = tk.Label(root, text='Labels:')
     label_title.grid(column=10, row=0)
 
 
@@ -699,104 +703,74 @@ def button_control(status, root, standard_button_callback, list_of_labels, w, h,
 
     button_height = int(20 / len(list_of_labels))
 
-    hand_labeling_button = Button(root, state = status, text='Start Hand Labeling', width=20, height=button_height,
+    hand_labeling_button = tk.Button(root, state = status, text='Start Hand Labeling', width=20, height=button_height,
                                   command=lambda: button_control('disabled', root, standard_button_callback, list_of_labels, w, h, colors))
     hand_labeling_button.grid(column=12, row=0)
 
-    stop_hand_labeling_button = Button(root,state = 'normal', text='Stop Hand Labeling', width=20, height=button_height,
+    stop_hand_labeling_button = tk.Button(root,state = 'normal', text='Stop Hand Labeling', width=20, height=button_height,
                                        command=lambda: button_control('normal', root, standard_button_callback, list_of_labels, w, h, colors))
     stop_hand_labeling_button.grid(column=12, row=1)
 
-    create_mask_button = Button(root,state = status, text='Create Mask', width=20, height=button_height,
+    create_mask_button = tk.Button(root,state = status, text='Create Mask', width=20, height=button_height,
                                 command=lambda: mask_update())
     create_mask_button.grid(column=12, row=2)
 
-    #json_creator = CreateJsonPolygonLabels(big_global_label_dict_select_area, list_of_labels)
-    #create_json_file = Button(root, state = status,text='Create Json', width=20, height=button_height,
-    #                          command=lambda: json_creator.createjson())
-    #create_json_file.grid(column=12, row=1)
-
-    #automated_masking_button = Button(root, state = status,text='Automated Masking', width=20, height=button_height,
-    #                                  command=lambda: automated_masking())
-    #automated_masking_button.grid(column=12, row=2)
-
-    #show_masks_button = Button(root, state = status,text='Finetune masks', width=20, height=button_height,
-    #                           command=lambda: show_masks(root, w, h, path))
-    #show_masks_button.grid(column=12, row=3)
-
-    restore_button = Button(root, state = status,text='Restore Image', width=20, height=button_height,
+    restore_button = tk.Button(root, state = status,text='Restore Image', width=20, height=button_height,
                             command=lambda: restore())
     restore_button.grid(column=13, row=2)
 
-    erosion_kernel_3_mal_3_Button = Button(root,state = status, text='Errosion 3x3', width=20, height=button_height,
+    erosion_kernel_3_mal_3_Button = tk.Button(root,state = status, text='Errosion 3x3', width=20, height=button_height,
                                            command=lambda: erosion(3, w, h))
     erosion_kernel_3_mal_3_Button.grid(column=12, row=4)
 
-    erosion_kernel_5_mal_5_Button = Button(root,state = status, text='Errosion 5x5', width=20, height=button_height,
+    erosion_kernel_5_mal_5_Button = tk.Button(root,state = status, text='Errosion 5x5', width=20, height=button_height,
                                            command=lambda: erosion(5, w, h))
     erosion_kernel_5_mal_5_Button.grid(column=12, row=5)
 
-    erosion_kernel_7_mal_7_Button = Button(root,state = status, text='Errosion 7x7', width=20, height=button_height,
+    erosion_kernel_7_mal_7_Button = tk.Button(root,state = status, text='Errosion 7x7', width=20, height=button_height,
                                            command=lambda: erosion(7, w, h))
     erosion_kernel_7_mal_7_Button.grid(column=12, row=6)
 
-    erosion_kernel_9_mal_9_Button = Button(root,state = status, text='Errosion 9x9', width=20, height=button_height,
+    erosion_kernel_9_mal_9_Button = tk.Button(root,state = status, text='Errosion 9x9', width=20, height=button_height,
                                            command=lambda: erosion(9, w, h))
     erosion_kernel_9_mal_9_Button.grid(column=12, row=7)
 
-    dilation_kernel_3_mal_3_Button = Button(root,state = status, text='Dilation 3x3', width=20, height=button_height,
+    dilation_kernel_3_mal_3_Button = tk.Button(root,state = status, text='Dilation 3x3', width=20, height=button_height,
                                             command=lambda: dilation(3, w, h))
     dilation_kernel_3_mal_3_Button.grid(column=13, row=4)
 
-    dilation_kernel_5_mal_5_Button = Button(root, state = status,text='Dilation 5x5', width=20, height=button_height,
+    dilation_kernel_5_mal_5_Button = tk.Button(root, state = status,text='Dilation 5x5', width=20, height=button_height,
                                             command=lambda: dilation(5, w, h))
     dilation_kernel_5_mal_5_Button.grid(column=13, row=5)
 
-    dilation_kernel_7_mal_7_Button = Button(root,state = status, text='Dilation 7x7', width=20, height=button_height,
+    dilation_kernel_7_mal_7_Button = tk.Button(root,state = status, text='Dilation 7x7', width=20, height=button_height,
                                             command=lambda: dilation(7, w, h))
     dilation_kernel_7_mal_7_Button.grid(column=13, row=6)
 
-    dilation_kernel_9_mal_9_Button = Button(root, state = status,text='Dilation 9x9', width=20, height=button_height,
+    dilation_kernel_9_mal_9_Button = tk.Button(root, state = status,text='Dilation 9x9', width=20, height=button_height,
                                             command=lambda: dilation(9, w, h))
     dilation_kernel_9_mal_9_Button.grid(column=13, row=7)
 
-    delete_image_Button = Button(root,state = status, text='Delete', width=20, height=button_height,
+    delete_image_Button = tk.Button(root,state = status, text='Delete', width=20, height=button_height,
                                  command=lambda: delete_image(black))
     delete_image_Button.grid(column=12, row=3)
 
-    #keep_image_Button = Button(root,state = status, text='Keep', width=20, height=button_height,
-    #                           command=lambda: keep_image(img_nr, black))
-    #keep_image_Button.grid(column=13, row=4)
-
-    get_pixels_button = Button(root,state = status, text='Get Pixel Value', width=20, height=button_height,
+    get_pixels_button = tk.Button(root,state = status, text='Get Pixel Value', width=20, height=button_height,
                                command=lambda: get_pixel())
     get_pixels_button.grid(column=13, row=0)
 
-    stop_get_pixels_button = Button(root, state = status, text = 'Stop Get PV', width = 20, height = button_height, command=lambda: stop_get_pixels())
+    stop_get_pixels_button = tk.Button(root, state = status, text = 'Stop Get PV', width = 20, height = button_height, command=lambda: stop_get_pixels())
     stop_get_pixels_button.grid(column=13, row=1)
 
-    make_blank_button = Button(root, state = status, text = 'Make blank', width = 20, height = button_height, command=lambda: make_blank())
+    make_blank_button = tk.Button(root, state = status, text = 'Make blank', width = 20, height = button_height, command=lambda: make_blank())
     make_blank_button.grid(column=13, row=3)
 
-    dbscan_button = Button(root, state = status, text = 'dbscan', width = 20, height = button_height, command = lambda: dbscan())
+    dbscan_button = tk.Button(root, state = status, text = 'dbscan', width = 20, height = button_height, command = lambda: dbscan())
     dbscan_button.grid(column = 12, row = 8)
 
 
-if __name__ == '__main__':
+def creating_images_list(path, images, w, h):
 
-    # Defining the tkinter root
-    root = Tk()
-    # Defining the gemotery of the root (with*height+coordinate of upper left corner)
-    root.geometry('1400x1300+0+0')
-    # Reading the images into a list
-    mask_names = os.listdir('bounding_boxes')
-
-    h = 428
-    w = 760
-
-    rspan = 15  # rowspan of image
-    path = 'images'
-    images = os.listdir(path)
     for f in images:
         imagePath = os.path.join(path, f)
         if imagePath != path + '\\.DS_Store':
@@ -808,45 +782,19 @@ if __name__ == '__main__':
             cv2_image = cv2.resize(cv2_image, (w,h))
             hsv_image = cv2.cvtColor(cv2_image, cv2.COLOR_BGR2HSV)
             hsv_image_list.append(hsv_image)
-    '''
-    if len(mask_names) == 0:
+    return
 
-        automated_masking()
-        black = Image.open('black.png')
-        black = ImageTk.PhotoImage(black.resize((int(0.8*w), int(0.8*h))))
-        for mask_name in mask_names:
-            mask_path = 'bounding_boxes/' + mask_name
-            mask = Image.open(mask_path)
-            h = int(mask.height)
-            h = 428
-            w = int(mask.width)
-            w = 760
-            mask = ImageTk.PhotoImage(mask.resize((int(0.8*w), int(0.8*h))))
-            mask_list.append(mask)
-            image_path = 'images/' + mask_name
-            image = Image.open(image_path)
-            image = ImageTk.PhotoImage(image.resize((int(0.8*w), int(0.8*h))))
-            mask_image_merge = np.where(mask==0, black, image)
-            mask_image_merge_list.append(mask_image_merge)
-    '''
-    if len(mask_names) == 0:
-        automated_masking()
+def creating_masks_list(w, h):
 
-
+    mask_names = os.listdir('bounding_boxes')
     black = Image.open('black.png')
     black = ImageTk.PhotoImage(black.resize((int(0.8 * w), int(0.8 * h))))
     for mask_name in mask_names:
         mask_path = 'bounding_boxes/' + mask_name
         mask = Image.open(mask_path)
-        h = int(mask.height)
-        h = 428
-        w = int(mask.width)
-        w = 760
         mask = ImageTk.PhotoImage(mask.resize((int(0.8*w), int(0.8*h))))
         mask_list.append(mask)
         image_path = 'images/' + mask_name
-        #image = Image.open(image_path)
-        #image = ImageTk.PhotoImage(image.resize((int(0.8*w), int(0.8*h))))
         image = cv2.imread(image_path)
         image = cv2.resize(image, (int(0.8*w), int(0.8*h)))
         black = cv2.imread('black.png')
@@ -862,26 +810,63 @@ if __name__ == '__main__':
         mask_image_merge = ImageTk.PhotoImage(mask_image_merge.resize((int(0.8*w), int(0.8*h))))
         mask_image_merge_list.append(mask_image_merge)
 
+class Ok():
 
+    def __init__(self, window, t1):
+        self.window = window
+        self.t1 = t1
+        self.pixel_value = 0
 
-    black = Image.open('black.png')
-    h = int(picture.height)
-    w = int(picture.width)
+    def ok(self):
+        self.pixel_value = int(self.t1.get())
+        if self.pixel_value >= 1 and self.pixel_value <= 255:
+            messagebox.showinfo(title='Pixel Assingment', message='Successful pixel assignment')
+            self.window.destroy()
+        else:
+            messagebox.showerror(title='Pixel Assingment', message='Pixel out of range')
+
+    def already_assigned(self):
+        self.pixel_value = 9999999999
+        self.window.destroy()
+
+def window_pixel_assignement():
+
+    window = tk.Tk()
+    window.title('Assign pixel value to mask (Label):')
+    window.geometry('400x500')
+
+    l1 = tk.Label(window, text='Choose for 1-255:', font=(14))
+    l1.grid(row=0, column=0, padx=5, pady=5)
+    entry_pixel = tk.StringVar()
+    t1 = tk.Entry(window, textvariable=entry_pixel, font=(14))
+    t1.grid(row=0, column=1)
+    get_pixel_value = Ok(window, t1)
+    b1 = tk.Button(window, command=lambda: get_pixel_value.ok(), text='Ok', font=(14))
+    b1.grid(row=2, column=1)
+    b2 = tk.Button(window, command = lambda: get_pixel_value.already_assigned(), text = 'Already Done', font=(14))
+    b2.grid(row=3, column=1)
+
+    window.mainloop()
+    return get_pixel_value
+
+def window_labeling_tool():
+
+    global canvas
+    global canvas_2
+    global canvas_3
+    root = tk.Tk()
+    root.geometry('1400x1300+0+0')
+    path = 'images'
+
     h = 428
     w = 760
+    rspan = 15  # rowspan of image
 
-    black = ImageTk.PhotoImage(black.resize((w, h)))
+    images = os.listdir(path)
+    creating_images_list(path, images, w, h)
+    creating_masks_list(w, h)
+
     list_of_labels = ['249', '250', '251', '248', '253', '254', '255']
-
-
-    sub_root = Frame(root)
-    sub_root.grid(column = 0, row = 0, rowspan = rspan, columnspan = 10)
-    canvas = Canvas(sub_root, width=w, height=h)
-    canvas.grid(column=0, row=0, rowspan=15)
-    canvas.create_image(0, 0, anchor=NW, image=image_list[0])
-    labeling_image_page = 'Image ' + str(img_nr) + '/' + str(len(image_list) - 1)
-    image_nr = Label(sub_root, text=labeling_image_page)
-    #image_nr.grid(column=16, row=10)
 
     if len(os.listdir('bounding_boxes')) != 0:
         mask_path = 'bounding_boxes/' + images[img_nr]
@@ -890,31 +875,39 @@ if __name__ == '__main__':
     else:
         mask = Image.open('black.png')
 
-    mask = ImageTk.PhotoImage(mask.resize((int(w*0.8), int(h*0.8))))
+    mask = ImageTk.PhotoImage(mask.resize((int(w * 0.8), int(h * 0.8))))
 
-    sub_root_2 = Frame(root)
-    sub_root_2.grid(column = 0, row = h, rowspan = int(rspan/2), columnspan = 8)
-    canvas_2 = Canvas(sub_root_2, width = int(w*0.8), height = int(h*0.8))
+    sub_root = tk.Frame(root)
+    sub_root.grid(column=0, row=0, rowspan=rspan, columnspan=10)
+    canvas = tk.Canvas(sub_root, width=w, height=h)
+    canvas.grid(column=0, row=0, rowspan=15)
+    canvas.create_image(0, 0, anchor=NW, image=image_list[0])
+
+    sub_root_2 = tk.Frame(root)
+    sub_root_2.grid(column=0, row=h, rowspan=int(rspan / 2), columnspan=8)
+    canvas_2 = tk.Canvas(sub_root_2, width=int(w * 0.8), height=int(h * 0.8))
     canvas_2.grid(column=0, row=0)
     canvas_2.create_image(0, 0, anchor=NW, image=mask)
 
-
-    sub_root_3 = Frame(root)
-    sub_root_3.grid(column = 9, row = h, rowspan = int(rspan/2), columnspan = 8)
-    canvas_3 = Canvas(sub_root_3, width = int(w*0.8), height = int(h*0.8))
-    canvas_3.grid(column=0, row=0, rowspan = 15)
+    sub_root_3 = tk.Frame(root)
+    sub_root_3.grid(column=9, row=h, rowspan=int(rspan / 2), columnspan=8)
+    canvas_3 = tk.Canvas(sub_root_3, width=int(w * 0.8), height=int(h * 0.8))
+    canvas_3.grid(column=0, row=0, rowspan=15)
     canvas_3.create_image(0, 0, anchor=NW, image=mask_image_merge_list[0])
 
     root.bind("<Right>", lambda x: next_image(root, sub_root, list_of_labels, w, h))
-    #root.bind("<Left>", lambda x: last_image(root, sub_root, image_list, list_of_labels, w, h))
 
     button_control('normal', root, standard_button_callback, list_of_labels, w, h, colors)
+    root.mainloop()
 
+if __name__ == '__main__':
+    # Defining the tkinter root
+    get_pixel_value = window_pixel_assignement()
+    pixel_value = get_pixel_value.pixel_value
 
+    if pixel_value > 0 and pixel_value <= 255:
+        automated_masking(pixel_value)
 
+    window_labeling_tool()
 
-
-
-
-    mainloop()
 
