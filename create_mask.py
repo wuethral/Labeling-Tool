@@ -51,6 +51,7 @@ def create_final_mask(w, h, image_number, label, images, image_name):
             else:
                 pix[x, y] = 0
             pixel_position += 1
+
     old_mask = cv.resize(old_mask, (int(w),int(h)))
     stacking_masks(old_mask, pix, w, h, label, image_name)
     list_of_pixel_values = []
@@ -128,7 +129,9 @@ def mask_creation_per_label(w, h, coordinates_of_one_label, image_number, label,
     for x in range(w):
         for y in range(h):
             check_winding_number(x, y, coordinates_of_one_label)
-
+    print('hi')
+    print(images)
+    print('hi')
     create_final_mask(w, h, image_number, label, images, images[image_number])
 
 
@@ -155,8 +158,7 @@ def mask_creation_per_image(w, h, labels_on_this_image_number, list_of_labels, i
 def mask_creation(w, h, number_of_images, list_of_labels, big_global_label_dict_select_area, images):
     # looping through the single images. We take hold of one image and we call the function mask_creation_per_image
     # where we pass the labels on this page, the list of labels and the image number. also the image width and height
-    print(big_global_label_dict_select_area)
-
+    #print(big_global_label_dict_select_area)
     for image_number in range(number_of_images):
         if image_number in big_global_label_dict_select_area.keys():
             labels_on_this_image_number  = big_global_label_dict_select_area[image_number]

@@ -14,6 +14,7 @@ from automated_masking import automated_masking
 import numpy as np
 from sklearn.cluster import DBSCAN
 from tkinter import messagebox
+from create_lists import CreateImageList
 
 
 canvas = 0
@@ -23,7 +24,6 @@ rectangle_coordinates_one_label = []
 select_area_coordinates_one_label = []
 big_global_label_dict_rectangle = {}
 big_global_label_dict_select_area = {}
-image_list = []
 hsv_image_list = []
 #hsv_image_list_original_size =[]
 img_nr = 0
@@ -42,10 +42,11 @@ mask_image_merge_list = []
 get_pixel_flag = False
 blabla = 0
 images = 0
-
+canvas_2_image = 0
+canvas_3_image = 0
 
 class TKButtonWrapper:
-    def __init__(self, root, which_column, callback_arg, callback, counting, nr_of_labels, w, h, color, label_state):
+    def __init__(self, root, which_column, callback_arg, callback, counting, nr_of_labels, w, h, color, label_state, all_canvas):
         self.root = root
         self.which_column = which_column
         self.callback_arg = callback_arg
@@ -56,20 +57,21 @@ class TKButtonWrapper:
         self.h = h
         self.color = color
         self.label_state = label_state
+        self.all_canvas = all_canvas
         self.create_button()
 
     def create_button(self):
-        self.button = Button(self.root, text=self.callback_arg, fg = self.color, state=self.label_state,
+        self.button = tk.Button(self.root, text=self.callback_arg, fg = self.color, state=self.label_state,
                              command=lambda: self.callback(self.root, self.callback_arg,
-                                                           self.w, self.h, self.color), width=10,
+                                                           self.w, self.h, self.color, self.all_canvas), width=10,
                              height=int(20 / self.nr_of_labels))
         self.button.grid(column=self.which_column, row=self.counting)
 
 
-def standard_button_callback(root, lab, w, h, color):
+def standard_button_callback(root, lab, w, h, color, all_canvas):
 
     root.bind('r', lambda x: draw_rectangle_outside(root, lab, color))
-    root.bind('s', lambda x: area_selection(root, w, h, lab, color))
+    root.bind('s', lambda x: area_selection(root, w, h, lab, color, all_canvas))
     root.bind('d', lambda x: clearing_of_label(root, lab))
 
 
@@ -107,37 +109,37 @@ def draw_rectangle_outside(root, lab, color):
     root.bind("<ButtonRelease-1>", draw_rectangle)
 
 
-def area_selection(root, w, h, lab, color):
+def area_selection(root, w, h, lab, color, all_canvas):
     global canvas
     def start_line(event):
         global select_area_coordinates_one_label
         global start_x
         global start_y
         select_area_coordinates_one_label = []
-        canvas.old_cords = event.x, event.y
+        all_canvas.canvas.old_cords = event.x, event.y
         root.unbind('<ButtonPress-1>')
         start_x = event.x
         start_y = event.y
         select_area_coordinates_one_label.append((start_x, start_y))
 
     def mouse_move(event):
-        canvas.delete('line')
-        x_live, y_live = canvas.old_cords
-        canvas.create_line(x_live, y_live, event.x, event.y, width=1, fill=color, tags='line')
+        all_canvas.canvas.delete('line')
+        x_live, y_live = all_canvas.canvas.old_cords
+        all_canvas.canvas.create_line(x_live, y_live, event.x, event.y, width=1, fill=color, tags='line')
 
 
     def draw_line(event):
 
         global first_line
         x, y = event.x, event.y
-        x1, y1 = canvas.old_cords
+        x1, y1 = all_canvas.canvas.old_cords
         end_x = x
         end_y = y
         distance_end_start = (((end_y - start_y) ** 2) + ((end_x - start_x) ** 2)) ** (1 / 2)
 
         if distance_end_start < 5 and first_line == False:
-            canvas.create_line(x1, y1, x, y, width=1, fill=color)
-            canvas.create_line(end_x, end_y, start_x, start_y, width=1,
+            all_canvas.canvas.create_line(x1, y1, x, y, width=1, fill=color)
+            all_canvas.canvas.create_line(end_x, end_y, start_x, start_y, width=1,
                                fill=color)  # Frage: Spielt Anordnung von x1,y1,x,y eine rolle?
             root.unbind('<ButtonRelease-1>')
             root.unbind("<B1-Motion>")
@@ -146,8 +148,8 @@ def area_selection(root, w, h, lab, color):
             saving_corner_coordinates('sel_area', select_area_coordinates_one_label, lab)
 
         else:
-            canvas.create_line(x1, y1, x, y, width=1, fill=color)  # Frage: Spielt Anordnung von x1,y1,x,y eine rolle?
-            canvas.old_cords = x, y
+            all_canvas.canvas.create_line(x1, y1, x, y, width=1, fill=color)  # Frage: Spielt Anordnung von x1,y1,x,y eine rolle?
+            all_canvas.canvas.old_cords = x, y
             first_line = False
             select_area_coordinates_one_label.append((x, y))
 
@@ -207,10 +209,7 @@ def clearing_of_label(root, lab):
     displaying_current_image()
 
 
-def displaying_current_image():
-
-    global image_list
-    global mask_list
+def displaying_current_image(lists, all_canvas):
     global mask_image_merge_list
     global canvas
     global label_buttons
@@ -219,112 +218,38 @@ def displaying_current_image():
     global redo_mask_list
     global images
     global img_nr
+    global root
     current_color = 0
-    print('len:', len(image_list))
-    #canvas = Canvas(sub_root, width=int(w), height=int(h))
-    #canvas.grid(column=0, row=0, rowspan=15)
-    print('rml',redo_mask_list)
+    print('update', img_nr)
 
-    print('img_nr_in_disp:', img_nr)
     if redo_mask_list:
-        images = os.listdir('images')
-        print('img',images)
-        mask_names = os.listdir('bounding_boxes')
-        mask_merge_names = os.listdir('image_mask_merge')
-        mask_list = []
-        mask_image_merge_list = []
-        image_list = []
 
-        for mask_name in mask_names:
-            mask_path = 'bounding_boxes/' + mask_name
-            mask = Image.open(mask_path)
-            h = int(mask.height)
-            w = int(mask.width)
-            w = 760
-            h = 428
-            mask = ImageTk.PhotoImage(mask.resize((int(0.8 * w), int(0.8 * h))))
-            mask_list.append(mask)
-
-        for mask_merge_name in mask_merge_names:
-            mask_merge_path = 'image_mask_merge/' + mask_merge_name
-            mask_merge = Image.open(mask_merge_path)
-
-            w = 760
-            h = 428
-            mask_merge = ImageTk.PhotoImage(mask_merge.resize((int(0.8 * w), int(0.8 * h))))
-            mask_image_merge_list.append(mask_merge)
-
-        rspan = 15  # rowspan of image
         path = 'images'
         images = os.listdir(path)
-        for f in images:
-            imagePath = os.path.join(path, f)
-            if imagePath != path + '\\.DS_Store':
-                picture = Image.open(imagePath)
-                h = int(picture.height)
-                w = int(picture.width)
-                w = 760
-                h= 428
-                img = ImageTk.PhotoImage(picture.resize((w, h)))
-                image_list.append(img)
+        w = 760
+        h = 428
+
+        del lists
+        lists = CreateImageList(path, images, w, h)
+
+    AllCanvas.update_canvas(all_canvas, lists)
+    AllCanvas.draw_forms(all_canvas)
+
 
     redo_mask_list = False
 
-    canvas.create_image(0, 0, anchor=NW, image=image_list[img_nr])
-    canvas_2.create_image(0, 0, anchor=NW, image=mask_list[img_nr])
-    canvas_3.create_image(0, 0, anchor=NW, image=mask_image_merge_list[img_nr])
-
-    if img_nr in big_global_label_dict_rectangle.keys():
-        for rect_labels in big_global_label_dict_rectangle[img_nr].keys():
-            for button_wrapper in label_buttons:
-                if button_wrapper.button['text'] == rect_labels:
-                    current_color = button_wrapper.button['fg']
-            for rect_coordinates in range(len(big_global_label_dict_rectangle[img_nr][rect_labels])):
-                x_one = big_global_label_dict_rectangle[img_nr][rect_labels][rect_coordinates][0][0]
-                y_one = big_global_label_dict_rectangle[img_nr][rect_labels][rect_coordinates][0][1]
-                x_two = big_global_label_dict_rectangle[img_nr][rect_labels][rect_coordinates][1][0]
-                y_two = big_global_label_dict_rectangle[img_nr][rect_labels][rect_coordinates][1][1]
-                canvas.create_rectangle(x_one, y_one, x_two, y_two, width = 1, outline=current_color)
-
-    if img_nr in big_global_label_dict_select_area.keys():
-        for select_area_labels in big_global_label_dict_select_area[img_nr].keys():
-            for button_wrapper in label_buttons:
-                if button_wrapper.button['text'] == select_area_labels:
-                    current_color = button_wrapper.button['fg']
-            for area_corner_coords in range(len(big_global_label_dict_select_area[img_nr][select_area_labels])):
-
-                for i in range(len(
-                        big_global_label_dict_select_area[img_nr][select_area_labels][area_corner_coords]) - 1):
-                    corner1 = big_global_label_dict_select_area[img_nr][select_area_labels][area_corner_coords][i]
-                    corner2 = big_global_label_dict_select_area[img_nr][select_area_labels][area_corner_coords][
-                        i + 1]
-                    canvas.create_line(corner1, corner2, width=1, fill=current_color)
-                first_corner = big_global_label_dict_select_area[img_nr][select_area_labels][area_corner_coords][
-                    0]
-                last_corner = big_global_label_dict_select_area[img_nr][select_area_labels][area_corner_coords][
-                    -1]
-                canvas.create_line(last_corner, first_corner, width=1, fill=current_color)
-    if get_pixel_flag == False and blabla == 1:
-        stop_get_pixels()
-    print('')
 
 
-def next_image(root, sub_root, labels_we_want, w, h):
-    print('ni')
+def next_image(root, labels_we_want, w, h, lists, all_canvas):
     global img_nr
     global label_buttons
     global get_pixel_flag
-    global image_list
-    print(image_list)
     get_pixel_flag = False
     img_nr += 1
 
 
-    print('img_n',img_nr)
-    print(len(image_list))
 
-
-    if img_nr == (len(image_list) - 1):
+    if img_nr == (lists.length - 1):
         # button_next_image = Button(root, text='>>', state=DISABLED,
         #                           command=lambda: next_image(root, image_list, img_nr, w, h))
         # button_next_image.grid(column=2, row=8)
@@ -332,7 +257,7 @@ def next_image(root, sub_root, labels_we_want, w, h):
     else:
         # button_next_image = Button(root, text='>>', command=lambda: next_image(root, image_list, img_nr, w, h))
         # button_next_image.grid(column=2, row=8)
-        root.bind("<Right>", lambda x: next_image(root, sub_root, labels_we_want, w, h))
+        root.bind("<Right>", lambda x: next_image(root, labels_we_want, w, h, lists, all_canvas))
 
     if img_nr == 0:
         # button_last_image = Button(root, text='<<', state=DISABLED,
@@ -342,26 +267,24 @@ def next_image(root, sub_root, labels_we_want, w, h):
     else:
         # button_last_image = Button(root, text='<<', command=lambda: last_image(root, image_list, img_nr, w, h))
         # button_last_image.grid(column=1, row=8)
-        root.bind("<Left>", lambda x: last_image(root, sub_root, labels_we_want, w, h))
+        root.bind("<Left>", lambda x: last_image(root, labels_we_want, w, h, lists, all_canvas))
 
     #labeling_image_page = 'Image ' + str(img_nr) + '/' + str(len(image_list) - 1)
     #image_nr = Label(sub_root, text=labeling_image_page)
     #image_nr.grid(column=4, row=10)
 
-    displaying_current_image()
+    displaying_current_image(lists, all_canvas)
 
-def last_image(root, sub_root, labels_we_want, w, h):
+def last_image(root, labels_we_want, w, h, image_list, all_canvas):
     global img_nr
     global get_pixel_flag
-    global image_list
     get_pixel_flag = False
     img_nr -= 1
     if img_nr == -1:
         img_nr = 0
     print('img_nr',img_nr)
-    print(len(image_list))
 
-    if img_nr == (len(image_list) - 1):
+    if img_nr == (image_list.length - 1):
         # button_next_image = Button(root, text='>>', state=DISABLED,
         #                           command=lambda: next_image(root, image_list, img_nr, w, h))
         # button_next_image.grid(column=2, row=8)
@@ -369,7 +292,7 @@ def last_image(root, sub_root, labels_we_want, w, h):
     else:
         # button_next_image = Button(root, text='>>', command=lambda: next_image(root, image_list, img_nr, w, h))
         # button_next_image.grid(column=2, row=8)
-        root.bind("<Right>", lambda x: next_image(root, sub_root, labels_we_want, w, h))
+        root.bind("<Right>", lambda x: next_image(root, labels_we_want, w, h, image_list, all_canvas))
 
     if img_nr == 0:
         # button_last_image = Button(root, text='<<', state=DISABLED,
@@ -379,9 +302,9 @@ def last_image(root, sub_root, labels_we_want, w, h):
     else:
         # button_last_image = Button(root, text='<<', command=lambda: last_image(root, image_list, img_nr, w, h))
         # button_last_image.grid(column=1, row=8)
-        root.bind("<Left>", lambda x: last_image(root, sub_root, labels_we_want, w, h))
+        root.bind("<Left>", lambda x: last_image(root, labels_we_want, w, h, image_list, all_canvas))
 
-    displaying_current_image()
+    displaying_current_image(image_list, all_canvas)
 
 
 
@@ -611,14 +534,15 @@ def stop_get_pixels():
     root.unbind("<ButtonPress-1>")
     root.unbing("<ButtonRelease-1>")
 
-def mask_update():
+def mask_update(w, h, list_of_labels, lists,all_canvas):
     global images
     global big_global_label_dict_select_area
     global redo_mask_list
+    print(w, h)
     mask_creation(w, h, 10, list_of_labels, big_global_label_dict_select_area, images)
     big_global_label_dict_select_area = {}
     redo_mask_list = True
-    displaying_current_image()
+    displaying_current_image(lists, all_canvas)
 
 def make_blank():
     global images
@@ -685,7 +609,7 @@ def dbscan():
     displaying_current_image()
 
 
-def button_control(status, root, standard_button_callback, list_of_labels, w, h, colors):
+def button_control(status, root, standard_button_callback, list_of_labels, w, h, colors, lists, all_canvas):
     count = 1
     label_title = tk.Label(root, text='Labels:')
     label_title.grid(column=10, row=0)
@@ -698,21 +622,21 @@ def button_control(status, root, standard_button_callback, list_of_labels, w, h,
         label_state = 'normal'
 
     for label in list_of_labels:
-        label_buttons.append(TKButtonWrapper(root, 10, label, standard_button_callback, count, len(list_of_labels), w, h, colors[count], label_state))
+        label_buttons.append(TKButtonWrapper(root, 10, label, standard_button_callback, count, len(list_of_labels), w, h, colors[count], label_state, all_canvas))
         count += 1
 
     button_height = int(20 / len(list_of_labels))
 
     hand_labeling_button = tk.Button(root, state = status, text='Start Hand Labeling', width=20, height=button_height,
-                                  command=lambda: button_control('disabled', root, standard_button_callback, list_of_labels, w, h, colors))
+                                  command=lambda: button_control('disabled', root, standard_button_callback, list_of_labels, w, h, colors, lists, all_canvas))
     hand_labeling_button.grid(column=12, row=0)
 
     stop_hand_labeling_button = tk.Button(root,state = 'normal', text='Stop Hand Labeling', width=20, height=button_height,
-                                       command=lambda: button_control('normal', root, standard_button_callback, list_of_labels, w, h, colors))
+                                       command=lambda: button_control('normal', root, standard_button_callback, list_of_labels, w, h, colors, lists, all_canvas))
     stop_hand_labeling_button.grid(column=12, row=1)
 
     create_mask_button = tk.Button(root,state = status, text='Create Mask', width=20, height=button_height,
-                                command=lambda: mask_update())
+                                command=lambda: mask_update(w, h, list_of_labels, lists, all_canvas))
     create_mask_button.grid(column=12, row=2)
 
     restore_button = tk.Button(root, state = status,text='Restore Image', width=20, height=button_height,
@@ -768,48 +692,6 @@ def button_control(status, root, standard_button_callback, list_of_labels, w, h,
     dbscan_button = tk.Button(root, state = status, text = 'dbscan', width = 20, height = button_height, command = lambda: dbscan())
     dbscan_button.grid(column = 12, row = 8)
 
-
-def creating_images_list(path, images, w, h):
-
-    for f in images:
-        imagePath = os.path.join(path, f)
-        if imagePath != path + '\\.DS_Store':
-            picture = Image.open(imagePath)
-            img = ImageTk.PhotoImage(picture.resize((w, h)))
-            image_list.append(img)
-            cv2_image = cv2.imread(imagePath)
-            cv2_image_list.append(cv2_image)
-            cv2_image = cv2.resize(cv2_image, (w,h))
-            hsv_image = cv2.cvtColor(cv2_image, cv2.COLOR_BGR2HSV)
-            hsv_image_list.append(hsv_image)
-    return
-
-def creating_masks_list(w, h):
-
-    mask_names = os.listdir('bounding_boxes')
-    black = Image.open('black.png')
-    black = ImageTk.PhotoImage(black.resize((int(0.8 * w), int(0.8 * h))))
-    for mask_name in mask_names:
-        mask_path = 'bounding_boxes/' + mask_name
-        mask = Image.open(mask_path)
-        mask = ImageTk.PhotoImage(mask.resize((int(0.8*w), int(0.8*h))))
-        mask_list.append(mask)
-        image_path = 'images/' + mask_name
-        image = cv2.imread(image_path)
-        image = cv2.resize(image, (int(0.8*w), int(0.8*h)))
-        black = cv2.imread('black.png')
-        black = cv2.resize(black, (int(0.8 * w), int(0.8 * h)))
-        mask = cv2.imread(mask_path)
-        mask = cv2.resize(mask, (int(0.8 * w), int(0.8 * h)))
-        mask_image_merge = np.where(mask==0, black, image)
-        mask_image_merge_path = 'image_mask_merge/' + mask_name
-        mask_image_merge_path_copy = 'image_mask_merge_copy/' + mask_name
-        cv2.imwrite(mask_image_merge_path, mask_image_merge)
-        cv2.imwrite(mask_image_merge_path_copy, mask_image_merge)
-        mask_image_merge = Image.open(mask_image_merge_path)
-        mask_image_merge = ImageTk.PhotoImage(mask_image_merge.resize((int(0.8*w), int(0.8*h))))
-        mask_image_merge_list.append(mask_image_merge)
-
 class Ok():
 
     def __init__(self, window, t1):
@@ -849,11 +731,81 @@ def window_pixel_assignement():
     window.mainloop()
     return get_pixel_value
 
+class AllCanvas():
+
+    def __init__(self, root, lists, rspan, w, h):
+        self.w = w
+        self.h = h
+        self.sub_root = tk.Frame(root)
+        self.sub_root.grid(column=0, row=0, rowspan=rspan, columnspan=10)
+        self.canvas = tk.Canvas(self.sub_root, width=self.w, height=self.h)
+        self.canvas.grid(column=0, row=0, rowspan=15)
+        self.canvas_image = self.canvas.create_image(0, 0, anchor=tk.NW, image=lists.image_list[0])
+
+        self.sub_root_2 = tk.Frame(root)
+        self.sub_root_2.grid(column=0, row=self.h, rowspan=int(rspan / 2), columnspan=8)
+        self.canvas_2 = tk.Canvas(self.sub_root_2, width=int(self.w * 0.8), height=int(self.h * 0.8))
+        self.canvas_2.grid(column=0, row=0)
+        self.canvas_2_image = self.canvas_2.create_image(0, 0, anchor=tk.NW, image=lists.mask_list[0])
+
+        self.sub_root_3 = tk.Frame(root)
+        self.sub_root_3.grid(column=9, row=self.h, rowspan=int(rspan / 2), columnspan=8)
+        self.canvas_3 = tk.Canvas(self.sub_root_3, width=int(self.w * 0.8), height=int(self.h * 0.8))
+        self.canvas_3.grid(column=0, row=0, rowspan=15)
+        self.canvas_3_image = self.canvas_3.create_image(0, 0, anchor=tk.NW, image=lists.mask_image_merge_list[0])
+
+    def update_canvas(self, lists):
+
+        print('image_nr:', img_nr)
+        print(len(lists.mask_image_merge_list))
+        self.canvas.imgref = lists.image_list[img_nr]
+        self.canvas_2.imgref = lists.mask_list[img_nr]
+        self.canvas_3.imgref = lists.mask_image_merge_list[img_nr]
+        self.canvas.itemconfig(self.canvas_image, image=lists.image_list[img_nr])
+        self.canvas_2.itemconfig(self.canvas_2_image, image=lists.mask_list[img_nr])
+        self.canvas_3.itemconfig(self.canvas_3_image, image=lists.mask_image_merge_list[img_nr])
+
+    def draw_forms(self):
+
+        if img_nr in big_global_label_dict_rectangle.keys():
+            for rect_labels in big_global_label_dict_rectangle[img_nr].keys():
+                for button_wrapper in label_buttons:
+                    if button_wrapper.button['text'] == rect_labels:
+                        current_color = button_wrapper.button['fg']
+                for rect_coordinates in range(len(big_global_label_dict_rectangle[img_nr][rect_labels])):
+                    x_one = big_global_label_dict_rectangle[img_nr][rect_labels][rect_coordinates][0][0]
+                    y_one = big_global_label_dict_rectangle[img_nr][rect_labels][rect_coordinates][0][1]
+                    x_two = big_global_label_dict_rectangle[img_nr][rect_labels][rect_coordinates][1][0]
+                    y_two = big_global_label_dict_rectangle[img_nr][rect_labels][rect_coordinates][1][1]
+                    self.canvas.create_rectangle(x_one, y_one, x_two, y_two, width=1, outline=current_color)
+
+        if img_nr in big_global_label_dict_select_area.keys():
+            for select_area_labels in big_global_label_dict_select_area[img_nr].keys():
+                for button_wrapper in label_buttons:
+                    if button_wrapper.button['text'] == select_area_labels:
+                        current_color = button_wrapper.button['fg']
+                for area_corner_coords in range(len(big_global_label_dict_select_area[img_nr][select_area_labels])):
+
+                    for i in range(len(
+                            big_global_label_dict_select_area[img_nr][select_area_labels][area_corner_coords]) - 1):
+                        corner1 = big_global_label_dict_select_area[img_nr][select_area_labels][area_corner_coords][i]
+                        corner2 = big_global_label_dict_select_area[img_nr][select_area_labels][area_corner_coords][
+                            i + 1]
+                        canvas.create_line(corner1, corner2, width=1, fill=current_color)
+                    first_corner = big_global_label_dict_select_area[img_nr][select_area_labels][area_corner_coords][
+                        0]
+                    last_corner = big_global_label_dict_select_area[img_nr][select_area_labels][area_corner_coords][
+                        -1]
+                    self.canvas.create_line(last_corner, fill = current_color)
+
 def window_labeling_tool():
 
     global canvas
     global canvas_2
     global canvas_3
+    global images
+    global root
+    global canvas_2_image, canvas_3_image
     root = tk.Tk()
     root.geometry('1400x1300+0+0')
     path = 'images'
@@ -863,8 +815,9 @@ def window_labeling_tool():
     rspan = 15  # rowspan of image
 
     images = os.listdir(path)
-    creating_images_list(path, images, w, h)
-    creating_masks_list(w, h)
+    lists = CreateImageList(path, images, w, h)
+
+
 
     list_of_labels = ['249', '250', '251', '248', '253', '254', '255']
 
@@ -877,27 +830,12 @@ def window_labeling_tool():
 
     mask = ImageTk.PhotoImage(mask.resize((int(w * 0.8), int(h * 0.8))))
 
-    sub_root = tk.Frame(root)
-    sub_root.grid(column=0, row=0, rowspan=rspan, columnspan=10)
-    canvas = tk.Canvas(sub_root, width=w, height=h)
-    canvas.grid(column=0, row=0, rowspan=15)
-    canvas.create_image(0, 0, anchor=NW, image=image_list[0])
+    all_canvas = AllCanvas(root,lists,rspan,w,h)
 
-    sub_root_2 = tk.Frame(root)
-    sub_root_2.grid(column=0, row=h, rowspan=int(rspan / 2), columnspan=8)
-    canvas_2 = tk.Canvas(sub_root_2, width=int(w * 0.8), height=int(h * 0.8))
-    canvas_2.grid(column=0, row=0)
-    canvas_2.create_image(0, 0, anchor=NW, image=mask)
 
-    sub_root_3 = tk.Frame(root)
-    sub_root_3.grid(column=9, row=h, rowspan=int(rspan / 2), columnspan=8)
-    canvas_3 = tk.Canvas(sub_root_3, width=int(w * 0.8), height=int(h * 0.8))
-    canvas_3.grid(column=0, row=0, rowspan=15)
-    canvas_3.create_image(0, 0, anchor=NW, image=mask_image_merge_list[0])
+    root.bind("<Right>", lambda x: next_image(root, list_of_labels, w, h, lists, all_canvas))
 
-    root.bind("<Right>", lambda x: next_image(root, sub_root, list_of_labels, w, h))
-
-    button_control('normal', root, standard_button_callback, list_of_labels, w, h, colors)
+    button_control('normal', root, standard_button_callback, list_of_labels, w, h, colors, lists, all_canvas)
     root.mainloop()
 
 if __name__ == '__main__':
