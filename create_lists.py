@@ -17,12 +17,6 @@ class CreateImageList:
         self.mask_list = []
         self.mask_image_merge_list = []
         self.length = 0
-        self.create_image_list()
-        self.len()
-        self.creating_masks_list()
-
-
-
 
     def create_image_list(self):
         for f in self.images:
@@ -66,5 +60,20 @@ class CreateImageList:
             self.mask_image_merge_list.append(mask_image_merge)
         print('xxxx',len(self.mask_image_merge_list))
         print('yyyy',len(self.mask_list))
+
+    def update_lists(self):
+        self.image_list = []
+        self.cv2_rgb_image_list = []
+        self.cv2_hsv_image_list = []
+        self.mask_list = []
+        self.mask_image_merge_list = []
+        self.create_image_list()
+        self.creating_masks_list()
+
+
+class DictCoordinates():
+
+    def __init__(self):
+        self.dict = {}
 
 
