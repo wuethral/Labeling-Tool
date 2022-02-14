@@ -129,9 +129,6 @@ def mask_creation_per_label(w, h, coordinates_of_one_label, image_number, label,
     for x in range(w):
         for y in range(h):
             check_winding_number(x, y, coordinates_of_one_label)
-    print('hi')
-    print(images)
-    print('hi')
     create_final_mask(w, h, image_number, label, images, images[image_number])
 
 
