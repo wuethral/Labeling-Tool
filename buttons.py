@@ -160,6 +160,7 @@ def button_control(status, root, standard_button_callback, list_of_labels, w, h,
                                                        label_buttons))
     restore_button.grid(column=13, row=2)
 
+    # Buttons to call erosion and dilation with different kernel sizes
     erosion_kernel_3_mal_3_Button = tk.Button(root, state=status, text='Errosion 3x3', width=20, height=button_height,
                                               command=lambda: erosion(3, w, h, images, lists, all_canvas,
                                                                       label_dict_select_area, img_nr, label_buttons))
@@ -200,14 +201,17 @@ def button_control(status, root, standard_button_callback, list_of_labels, w, h,
                                                                         label_dict_select_area, img_nr, label_buttons))
     dilation_kernel_9_mal_9_Button.grid(column=13, row=7)
 
-    root.bind('p', lambda x: get_pixel(root, all_canvas, lists, label_dict_select_area, img_nr, label_buttons, images))
+    root.bind('p', lambda x: get_pixel(root, all_canvas, img_nr, images))
 
-
+    # Button make_blank_button calls the function make_blank
+    # The button is placed on the grid at column 13 and row 3
     make_blank_button = tk.Button(root, state=status, text='Make blank', width=20, height=button_height,
                                   command=lambda: make_blank(images, img_nr, lists, all_canvas, label_dict_select_area,
                                                              label_buttons))
     make_blank_button.grid(column=13, row=3)
-    
+
+    # Button dbscan_button calls the function dbscan.
+    # The button is placed on the grid at column 12 and row 8
     dbscan_button = tk.Button(root, state=status, text='dbscan', width=20, height=button_height,
                               command=lambda: dbscan(images, img_nr, lists, w, h, all_canvas, label_dict_select_area,
                                                      label_buttons, pixel_value))

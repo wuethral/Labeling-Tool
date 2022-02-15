@@ -2,7 +2,6 @@ import tkinter as tk
 from tkinter import messagebox
 import os
 from create_lists import CreateImageList, DictCoordinates
-from PIL import Image, ImageTk
 from canvas import AllCanvas
 from label_buttons import LabelButton
 from foreward_backward import next_image
@@ -12,50 +11,94 @@ from img_number import ImgNumber
 
 
 class Ok():
+    '''This class contains the functions for the buttons presses in the first window pop-up'''
 
-    def __init__(self, window, t1):
+    def __init__(self, window, t1, t2):
         self.window = window
         self.t1 = t1
+        self.t2 = t2
         self.pixel_value = 0
+        self.automated_masking = False
 
     def ok(self):
+        '''This function gets the pixel value, when we want automated masking'''
+
+        # Getting the pixel value from t1
         self.pixel_value = int(self.t1.get())
+
+        # If the pixel value is in the range [1,255], the pixel assignment was successful. Otherwise not.
         if self.pixel_value >= 1 and self.pixel_value <= 255:
             messagebox.showinfo(title='Pixel Assingment', message='Successful pixel assignment')
+
+            # Setting the attribute self.automated_masking to True
+            self.automated_masking = True
+
+            # Destroying window
             self.window.destroy()
         else:
             messagebox.showerror(title='Pixel Assingment', message='Pixel out of range')
 
     def already_assigned(self):
-        self.pixel_value = 9999999999
+        '''This function gets the pixel value, when we don't want automated masking'''
+
+        # Getting the pixel value from t2
+        self.pixel_value = int(self.t2.get())
+        # Setting the attribute self.automated_masking to False
+        self.automated_masking = False
+        # Destroy window
         self.window.destroy()
 
 
 def window_pixel_assignement():
+    '''In this function is responsible for the GUI, where one can decide if he wants to perform the automated masking or
+     not. And also for what pixel value'''
+
+    # Creating a new tkinter object and defining it's title and geometry
     window = tk.Tk()
     window.title('Assign pixel value to mask (Label):')
-    window.geometry('400x500')
+    window.geometry('1000x200')
 
-    l1 = tk.Label(window, text='Choose for 1-255:', font=(14))
+    # Creating a label and placing it on window
+    l1 = tk.Label(window, text='Automated Masking: Choose from 1-255:', font=(14))
     l1.grid(row=0, column=0, padx=5, pady=5)
+
+    # Creating a field, where one can write text in the GUI and placing it on window
     entry_pixel = tk.StringVar()
     pixel_value = tk.Entry(window, textvariable=entry_pixel, font=(14))
     pixel_value.grid(row=0, column=1)
-    get_pixel_value = Ok(window, pixel_value)
+
+    l2 = tk.Label(window, text='No Automated Masking: Type in the pixel value of your masks:', font=(14))
+    l2.grid(row=1, column=0, padx=5, pady=5)
+
+    entry_pixel_2 = tk.StringVar()
+    pixel_value_2 = tk.Entry(window, textvariable=entry_pixel_2, font=(14))
+    pixel_value_2.grid(row=1, column=1)
+
+    # Creating an object get_pixel_value from the class Ok with window and pixel_value as inputs
+    get_pixel_value = Ok(window, pixel_value, pixel_value_2)
+
+    # Creating a button that calls the function get_pixel_value.ok() from the class Ok() and placing it on window
     b1 = tk.Button(window, command=lambda: get_pixel_value.ok(), text='Ok', font=(14))
-    b1.grid(row=2, column=1)
-    b2 = tk.Button(window, command=lambda: get_pixel_value.already_assigned(), text='Already Done', font=(14))
-    b2.grid(row=3, column=1)
+    b1.grid(row=0, column=3)
+
+    # Creating a button that calls the function get_pixel_value.already_assigned() from the class Ok() and placing it
+    # on window
+    b2 = tk.Button(window, command=lambda: get_pixel_value.already_assigned(), text='Ok', font=(14))
+    b2.grid(row=1, column=3)
 
     window.mainloop()
+
+    # Returning the get_pixel_value to the main function
     return get_pixel_value
 
 
 def window_labeling_tool(pixel_value):
     '''Main function of the labeling tool interface'''
 
-    # Creating an object root and defining its geometry with width=1400, height=1300, and origin on screen (0,0)
+    # Creating an object root and defining its title and geometry with width=1400, height=1300, and origin on
+    # screen (0,0)
     root = tk.Tk()
+    root.title('Labeling Tool')
     root.geometry('1400x1300+0+0')
 
     # Saving the image names in folder 'images' in a list
