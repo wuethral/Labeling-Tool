@@ -77,22 +77,32 @@ class CreateImageList:
             self.mask_image_merge_list.append(mask_image_merge)
 
     def len(self):
+        '''This function calculates the length of the attribute self.image_list'''
+
         self.length = len(self.image_list)
 
     def update_lists(self):
+        '''This function updates the attributes self.image_list, self.mask_list and self.mask_image_merge_list'''
+
+        # Making the lists empty
         self.image_list = []
         self.mask_list = []
         self.mask_image_merge_list = []
+
+        # Call these functions to refill self.image_list, self.mask_list and self.mask_image_merge_list
         self.create_image_list()
         self.creating_masks_list()
 
 
 class DictCoordinates():
+    '''In this class the coorner coordinates of the polygon in the hand labeling are saved and deleted'''
 
     def __init__(self):
         self.dict = {}
 
     def delete(self, img_nr, lab):
+        '''Deleting an element in self.dict at specific image number and label'''
+
         del self.dict[img_nr][lab]
 
 

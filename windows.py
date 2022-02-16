@@ -56,7 +56,7 @@ def window_pixel_assignement():
     # Creating a new tkinter object and defining it's title and geometry
     window = tk.Tk()
     window.title('Assign pixel value to mask (Label):')
-    window.geometry('1000x200')
+    window.geometry('700x70')
 
     # Creating a label and placing it on window
     l1 = tk.Label(window, text='Automated Masking: Choose from 1-255:', font=(14))

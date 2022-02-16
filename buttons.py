@@ -2,7 +2,6 @@ import tkinter as tk
 from canvas import AllCanvas
 from displaying import displaying_current_image
 from update import mask_update
-from list_of_colors import colors
 from button_fuctions import delete_image, restore, erosion, dilation, get_pixel, make_blank, dbscan
 
 
