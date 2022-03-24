@@ -82,7 +82,7 @@ class AllCanvas():
         self.canvas_2.itemconfig(self.canvas_2_image, image=lists.mask_list[img_nr])
         self.canvas_3.itemconfig(self.canvas_3_image, image=lists.mask_image_merge_list[img_nr])
 
-        # Looping through all the lines and updating their state to 'hidden
+        # Looping through all the lines and updating their state to 'hidden'
         for i in range(len(self.line_list)):
             line = self.line_list[i]
             self.canvas.itemconfig(line, state='hidden')

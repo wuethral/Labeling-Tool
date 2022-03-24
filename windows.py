@@ -49,17 +49,17 @@ class Ok():
         self.window.destroy()
 
 
-def window_pixel_assignement():
+def window_pixel_assignment():
     '''In this function is responsible for the GUI, where one can decide if he wants to perform the automated masking or
      not. And also for what pixel value'''
 
     # Creating a new tkinter object and defining it's title and geometry
     window = tk.Tk()
-    window.title('Assign pixel value to mask (Label):')
+    window.title('Assign pixel value to mask (label):')
     window.geometry('700x70')
 
     # Creating a label and placing it on window
-    l1 = tk.Label(window, text='Automated Masking: Choose from 1-255:', font=(14))
+    l1 = tk.Label(window, text='Automated masking: Choose from 1-255:', font=(14))
     l1.grid(row=0, column=0, padx=5, pady=5)
 
     # Creating a field, where one can write text in the GUI and placing it on window
@@ -67,7 +67,7 @@ def window_pixel_assignement():
     pixel_value = tk.Entry(window, textvariable=entry_pixel, font=(14))
     pixel_value.grid(row=0, column=1)
 
-    l2 = tk.Label(window, text='No Automated Masking: Type in the pixel value of your masks:', font=(14))
+    l2 = tk.Label(window, text='No automated masking: Type in the pixel value of your masks:', font=(14))
     l2.grid(row=1, column=0, padx=5, pady=5)
 
     entry_pixel_2 = tk.StringVar()
@@ -99,7 +99,7 @@ def window_labeling_tool(pixel_value):
     # screen (0,0)
     root = tk.Tk()
     root.title('Labeling Tool')
-    root.geometry('1400x1300+0+0')
+    root.geometry('1230x780+0+0')
 
     # Saving the image names in folder 'images' in a list
     path = 'images'
@@ -122,7 +122,7 @@ def window_labeling_tool(pixel_value):
     all_canvas = AllCanvas(root, lists, rspan, w, h)
 
     # list of labels for the masks, these will be pixel values of the masks
-    list_of_labels = ['249', '250', '251', '248', '253', '254', '255']
+    list_of_labels = ['50', '250', '251', '248', '253', '254', '255']
 
     # Creating and object in which the corner coordinates of the hand labeling polygons are saved
     label_dict_select_area = DictCoordinates()

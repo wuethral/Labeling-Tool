@@ -10,7 +10,7 @@ from sklearn.cluster import DBSCAN
 def delete_image(images, lists, all_canvas, label_dict_select_area, label_buttons, img_nr):
     '''This function deletes the image, mask and mask_image_merge at the current img_nr in the attributes image_list,
     mask_list and mask_image_merge_list of the object lists. They area also deleted in the folders images,
-    bounding_boxes and image_mask_merge'''
+    masks and image_mask_merge'''
 
     # Removing the images, masks, mask_image_merge from the attributes image_list, mask_list, mask_image_merge_list in
     # the object lists at the current img_nr
@@ -22,7 +22,7 @@ def delete_image(images, lists, all_canvas, label_dict_select_area, label_button
     image_name = images[img_nr.img_number]
     # Paths to the images, masks and mask_image_merges
     image_path = 'images/' + image_name
-    path_mask = 'bounding_boxes/' + image_name
+    path_mask = 'masks/' + image_name
     path_mask_img_merge = 'image_mask_merge/' + image_name
     # Removing the images, masks and mask_image_merges from the according folders
     os.remove(path_mask)
@@ -43,19 +43,19 @@ def restore(images, lists, img_nr, w, h, all_canvas, label_dict_select_area, lab
 
     # Name of the image at the current image number
     image_name = images[img_nr.img_number]
-    # Paths to the mask mask_image_merge in the folder bounding_boxes, bounding_boxes_copy, images_mask_merge and
+    # Paths to the mask mask_image_merge in the folder masks, masks_copy, images_mask_merge and
     # images_mask_merge_copy
-    old_mask_path = 'bounding_boxes/' + image_name
-    new_mask_path = 'bounding_boxes_copy/' + image_name
+    old_mask_path = 'masks/' + image_name
+    new_mask_path = 'masks_copy/' + image_name
     old_mask_image_merge_path = 'image_mask_merge/' + image_name
     new_mask_image_merge_path = 'image_mask_merge_copy/' + image_name
-    # Loading masks and mask_image_merge from bounding_boxes_copy and image_mask_merge_copy folders
-    # Removing masks and mask_image_merge form bounding_boxes and image_mask_merge folders
+    # Loading masks and mask_image_merge from masks_copy and image_mask_merge_copy folders
+    # Removing masks and mask_image_merge form masks and image_mask_merge folders
     new_mask = cv2.imread(new_mask_path)
     os.remove(old_mask_path)
     new_image_merge = cv2.imread(new_mask_image_merge_path)
     os.remove(old_mask_image_merge_path)
-    # Writing the newly loaded images and masks to the folder bounding_boxes and mask_image_merge_folder
+    # Writing the newly loaded images and masks to the folder masks and mask_image_merge_folder
     cv2.imwrite(old_mask_path, new_mask)
     cv2.imwrite(old_mask_image_merge_path, new_image_merge)
     # Opening the mask and mask_image_merge and resizing them
@@ -77,7 +77,7 @@ def erosion(x, w, h, images, lists, all_canvas, label_dict_select_area, img_nr, 
 
     # Opening the mask
     image_name = images[img_nr.img_number]
-    mask_path = 'bounding_boxes/' + image_name
+    mask_path = 'masks/' + image_name
     mask = cv2.imread(mask_path)
 
     # Creating eroded image of mask with kernel size (x,x)
@@ -126,7 +126,7 @@ def dilation(x, w, h, images, lists, all_canvas, label_dict_select_area, img_nr,
 
     # Opening the mask
     image_name = images[img_nr.img_number]
-    mask_path = 'bounding_boxes/' + image_name
+    mask_path = 'masks/' + image_name
     mask = cv2.imread(mask_path)
 
     # Creating dilated image of mask with kernel size (x,x)
@@ -193,7 +193,7 @@ def get_pixel(root, all_canvas, img_nr, images):
         all_canvas.canvas.delete('text')
 
     # Opening the mask at the current image number
-    current_mask_path = 'bounding_boxes/' + images[img_nr.img_number]
+    current_mask_path = 'masks/' + images[img_nr.img_number]
     current_mask = cv2.imread(current_mask_path)
 
     # Binding the mouse press to the function get_pixel_value
@@ -205,7 +205,7 @@ def make_blank(images, img_nr, lists, all_canvas, label_dict_select_area, label_
     '''This function replaces the masks and the mask_image_merges with black images'''
 
     # Removing the masks and mask_image_merge at the current image number from the folders
-    mask_path = 'bounding_boxes/' + images[img_nr.img_number]
+    mask_path = 'masks/' + images[img_nr.img_number]
     mask_merge_path = 'image_mask_merge/' + images[img_nr.img_number]
     os.remove(mask_path)
     os.remove(mask_merge_path)
@@ -228,7 +228,7 @@ def dbscan(images, img_nr, lists, w, h, all_canvas, label_dict_select_area, labe
     '''This function executes the dbscan algorithm on the mask'''
 
     # Opening the mask at the current image number
-    mask_path = 'bounding_boxes/' + images[img_nr.img_number]
+    mask_path = 'masks/' + images[img_nr.img_number]
     mask = cv2.imread(mask_path)
 
     # Converting the mask from the BGR to the GRAY colorspace

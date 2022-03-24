@@ -36,13 +36,13 @@ class CreateImageList:
         '''Appending the masks to the list self.image_list. Creating the images mask_image_merge and appending them
         to the list self.mask_image_merge_list.'''
 
-        # Creating a list of the names in the folder bounding_boxes
-        mask_names = os.listdir('bounding_boxes')
+        # Creating a list of the names in the folder masks
+        mask_names = os.listdir('masks')
 
         # Looping through the names in the list mask_names
         for mask_name in mask_names:
             # Creating path to masks, opening and resizing masks, and appending it to the list self.mask_list
-            mask_path = 'bounding_boxes/' + mask_name
+            mask_path = 'masks/' + mask_name
             mask = Image.open(mask_path)
             mask = ImageTk.PhotoImage(mask.resize((int(0.8*self.w), int(0.8*self.h))))
             self.mask_list.append(mask)

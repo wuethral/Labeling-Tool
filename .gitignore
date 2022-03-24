@@ -1,8 +1,4 @@
-/DataSet
 /.idea
 /__pycache__
-/mask1_img_nr_0_label_249.png
-/mask2_img_nr_0_label_249.png
-/mask3_img_nr_0_label_251.png
-
-
+create_json.py
+create_json_classes_methods.py

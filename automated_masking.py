@@ -246,10 +246,10 @@ def automated_masking(pixel_value):
         image = making_green_pixels_in_bounding_box_black(height, bounding_box_min, bounding_box_max, hsv_image, h_min,
                                                           h_max, s_min, s_max, v_min, v_max, image, pixel_value)
 
-        # Resizing the image and saving it to the founder bounding_boxes and bounding_boxes_copy
+        # Resizing the image and saving it to the founder masks and masks_copy
         image = cv.resize(image, (760, 428))
-        saving_path = 'bounding_boxes/' + image_name
-        saving_path_2 = 'bounding_boxes_copy/' + image_name
+        saving_path = 'masks/' + image_name
+        saving_path_2 = 'masks_copy/' + image_name
         cv.imwrite(saving_path, image)
         cv.imwrite(saving_path_2, image)
 

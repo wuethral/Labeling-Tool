@@ -1,11 +1,11 @@
 from automated_masking import automated_masking
-from windows import window_pixel_assignement, window_labeling_tool
+from windows import window_pixel_assignment, window_labeling_tool
 
 if __name__ == '__main__':
 
     # Calling function window_pixel_assignment, which returns an object (get_pixel_value), which contains the pixel
     # value (label) for the function automated_masking.
-    get_pixel_value = window_pixel_assignement()
+    get_pixel_value = window_pixel_assignment()
 
     # Accessing the attribute pixel_value from object get_pixel_value, which contains the label (pixel value for masks)
     pixel_value = get_pixel_value.pixel_value

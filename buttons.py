@@ -28,7 +28,7 @@ def clearing_of_label(lab, lists, all_canvas, label_dict_select_area, img_nr, la
     else:
         pass
     redo_mask_list = False
-    displaying_current_image(lists, all_canvas, label_dict_select_area, img_nr, redo_mask_list, label_buttons)
+    displaying_current_image(lists, all_canvas, label_dict_select_area, img_nr, redo_mask_list, label_buttons.label_buttons)
 
 
 class TKButtonWrapper:
@@ -83,6 +83,17 @@ def standard_button_callback(root, lab, w, h, color, lists, all_canvas, label_di
     # Button d on the keyboard is bound to the root with the command clearing_of_label()
     root.bind('d', lambda x: clearing_of_label(lab, lists, all_canvas, label_dict_select_area, img_nr, label_buttons))
 
+def stop_hand_labeling(root, standard_button_callback, list_of_labels, w, h, colors, lists, all_canvas,
+                       label_dict_select_area, label_buttons, img_nr, redo_mask_list, images, pixel_value):
+    ''' This method activates the all buttons and deactivates the label buttons. Also, it unbinds the letters s and d
+    from their methods'''
+
+    button_control('normal', root, standard_button_callback, list_of_labels, w, h, colors, lists, all_canvas,
+                   label_dict_select_area, label_buttons, img_nr, redo_mask_list, images, pixel_value)
+
+    root.unbind('s')
+    root.unbind('d')
+
 
 def button_control(status, root, standard_button_callback, list_of_labels, w, h, colors, lists, all_canvas,
                    label_dict_select_area, label_buttons, img_nr, redo_mask_list, images, pixel_value):
@@ -131,7 +142,7 @@ def button_control(status, root, standard_button_callback, list_of_labels, w, h,
     # The button is placed on the grid at column 12 and row 1
     stop_hand_labeling_button = tk.Button(root, state='normal', text='Stop Hand Labeling', width=20,
                                           height=button_height,
-                                          command=lambda: button_control('normal', root, standard_button_callback,
+                                          command=lambda: stop_hand_labeling(root, standard_button_callback,
                                                                          list_of_labels, w, h, colors, lists,
                                                                          all_canvas, label_dict_select_area,
                                                                          label_buttons, img_nr, redo_mask_list, images,
@@ -160,22 +171,22 @@ def button_control(status, root, standard_button_callback, list_of_labels, w, h,
     restore_button.grid(column=13, row=2)
 
     # Buttons to call erosion and dilation with different kernel sizes
-    erosion_kernel_3_mal_3_Button = tk.Button(root, state=status, text='Errosion 3x3', width=20, height=button_height,
+    erosion_kernel_3_mal_3_Button = tk.Button(root, state=status, text='Erosion 3x3', width=20, height=button_height,
                                               command=lambda: erosion(3, w, h, images, lists, all_canvas,
                                                                       label_dict_select_area, img_nr, label_buttons))
     erosion_kernel_3_mal_3_Button.grid(column=12, row=4)
 
-    erosion_kernel_5_mal_5_Button = tk.Button(root, state=status, text='Errosion 5x5', width=20, height=button_height,
+    erosion_kernel_5_mal_5_Button = tk.Button(root, state=status, text='Erosion 5x5', width=20, height=button_height,
                                               command=lambda: erosion(5, w, h, images, lists, all_canvas,
                                                                       label_dict_select_area, img_nr, label_buttons))
     erosion_kernel_5_mal_5_Button.grid(column=12, row=5)
 
-    erosion_kernel_7_mal_7_Button = tk.Button(root, state=status, text='Errosion 7x7', width=20, height=button_height,
+    erosion_kernel_7_mal_7_Button = tk.Button(root, state=status, text='Erosion 7x7', width=20, height=button_height,
                                               command=lambda: erosion(7, w, h, images, lists, all_canvas,
                                                                       label_dict_select_area, img_nr, label_buttons))
     erosion_kernel_7_mal_7_Button.grid(column=12, row=6)
 
-    erosion_kernel_9_mal_9_Button = tk.Button(root, state=status, text='Errosion 9x9', width=20, height=button_height,
+    erosion_kernel_9_mal_9_Button = tk.Button(root, state=status, text='Erosion 9x9', width=20, height=button_height,
                                               command=lambda: erosion(9, w, h, images, lists, all_canvas,
                                                                       label_dict_select_area, img_nr, label_buttons))
     erosion_kernel_9_mal_9_Button.grid(column=12, row=7)
@@ -204,14 +215,14 @@ def button_control(status, root, standard_button_callback, list_of_labels, w, h,
 
     # Button make_blank_button calls the function make_blank
     # The button is placed on the grid at column 13 and row 3
-    make_blank_button = tk.Button(root, state=status, text='Make blank', width=20, height=button_height,
+    make_blank_button = tk.Button(root, state=status, text='Make Blank', width=20, height=button_height,
                                   command=lambda: make_blank(images, img_nr, lists, all_canvas, label_dict_select_area,
                                                              label_buttons))
     make_blank_button.grid(column=13, row=3)
 
     # Button dbscan_button calls the function dbscan.
     # The button is placed on the grid at column 12 and row 8
-    dbscan_button = tk.Button(root, state=status, text='dbscan', width=20, height=button_height,
+    dbscan_button = tk.Button(root, state=status, text='Dbscan', width=20, height=button_height,
                               command=lambda: dbscan(images, img_nr, lists, w, h, all_canvas, label_dict_select_area,
                                                      label_buttons, pixel_value))
     dbscan_button.grid(column=12, row=8)

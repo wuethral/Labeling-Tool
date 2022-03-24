@@ -41,7 +41,7 @@ def stacking_masks(old_mask, pix, w, h, label, image_name):
                 old_mask[y, x] = int(label)
 
     # Writing the changed mask to the folder at the current image
-    saving_path = 'bounding_boxes/' + image_name
+    saving_path = 'masks/' + image_name
     cv.imwrite(saving_path, old_mask)
 
     # Convert the newly created mask from Gray to BGR
@@ -78,7 +78,7 @@ def create_final_mask(w, h, image_number, label, images, image_name, list_of_pix
     pixel_position = 0
 
     # Accessing and reading the mask from the folder
-    old_mask_path = 'bounding_boxes/' + images[image_number]
+    old_mask_path = 'masks/' + images[image_number]
     old_mask = cv.imread(old_mask_path)
     # Converting the mask from colorspace BGR to GRAY and resizing the mask
     old_mask = cv.cvtColor(old_mask, cv.COLOR_BGR2GRAY)
@@ -223,7 +223,6 @@ def mask_creation_per_image(w, h, labels_on_this_image_number, list_of_labels, i
 def mask_creation(w, h, number_of_images, list_of_labels, dict_label_dict_select_area, images):
     '''This function loops through the single images. We take hold of one image and we call the function mask_creation_per_image
     where we pass the labels on this page, the list of labels and the image number. also the image width and height'''
-
     # Looping through every image
     for image_number in range(number_of_images):
         # Checking if the image is a key in the dict_label_dict_select_area
